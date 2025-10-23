@@ -10,7 +10,7 @@ variable "lambda_function_name" {
 
 variable "lambda_handler" {
   description = "Lambda entrypoint"
-  default     = "index.handler"
+  default     = "app.handler"
 }
 
 variable "runtime" {
