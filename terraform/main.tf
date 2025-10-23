@@ -1,13 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket         = "my-terraform-state-bucket-serverless"
-    key            = "lambda-ci-cd/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-lock-table"
-    encrypt        = true
-  }
-}
-
 resource "aws_iam_role" "lambda_exec_role" {
   name = "${var.lambda_function_name}-role"
 
