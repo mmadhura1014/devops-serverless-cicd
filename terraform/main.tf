@@ -1,32 +1,46 @@
-provider "aws" {
-  region = "us-east-1"
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket"
+    key            = "lambda-ci-cd/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock-table"
+    encrypt        = true
+  }
 }
 
-resource "aws_iam_role" "lambda_exec_role-2" {
-  name = "lambda_exec_role-2"
+resource "aws_iam_role" "lambda_exec_role" {
+  name = "${var.lambda_function_name}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Principal = {
-        Service = "lambda.amazonaws.com"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
       }
-      Effect = "Allow"
-      Sid = ""
-    }]
+    ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_policy-2" {
-  role       = aws_iam_role.lambda_exec_role-2.name
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.lambda_exec_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_lambda_function" "hello_lambda-2" {
-  function_name = "hello-lambda"
-  role          = aws_iam_role.lambda_exec_role-2.arn
-  handler       = "app.lambda_handler"
-  runtime       = "python3.9"
-  filename      = "lambda.zip"
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda_function"
+  output_path = "${path.module}/lambda_function.zip"
+}
+
+resource "aws_lambda_function" "lambda_function" {
+  function_name = var.lambda_function_name
+  role          = aws_iam_role.lambda_exec_role.arn
+  handler       = var.lambda_handler
+  runtime       = var.runtime
+  filename      = data.archive_file.lambda_zip.output_path
+  source_code_hash = filebase64sha256(data.archive_file.lambda_zip.output_path)
 }
