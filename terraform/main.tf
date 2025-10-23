@@ -2,8 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_iam_role" "lambda_exec_role" {
-  name = "lambda_exec_role"
+resource "aws_iam_role" "lambda_exec_role-2" {
+  name = "lambda_exec_role-2"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -18,12 +18,12 @@ resource "aws_iam_role" "lambda_exec_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  role       = aws_iam_role.lambda_exec_role.name
+resource "aws_iam_role_policy_attachment" "lambda_policy-2" {
+  role       = aws_iam_role.lambda_exec_role-2.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_lambda_function" "hello_lambda" {
+resource "aws_lambda_function" "hello_lambda-2" {
   function_name = "hello-lambda"
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = "app.lambda_handler"
