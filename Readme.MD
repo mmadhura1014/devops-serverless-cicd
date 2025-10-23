@@ -19,6 +19,8 @@ Tech Stack
 | **State Storage**          | S3 + DynamoDB  | Remote backend for Terraform                    |
 
 
+![alt text](image.png)
+
 Initialize Terraform (Local Setup)
 
 In your terminal:
